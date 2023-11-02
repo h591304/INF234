@@ -12,7 +12,7 @@ def weighted_interval_scheduling(intervals):
 
     Output:
         Returns the total amount of possible non-overlapping intervals, the intervals themself (with start, end times and weight) 
-        and the total weight of all intervals.
+        and the sum of all weights.
     """
     # Convert lists to namedtuples
     namedtuple_intervals = [Interval(*interval) for interval in intervals]
