@@ -1,0 +1,56 @@
+
+from collections import namedtuple as T
+
+Interval = T("Interval", "s f w")
+
+def weighted_interval_scheduling(intervals):
+    """
+    Weighted interval scheduling into non-overlapping partitions using dynamic programming.
+    
+    Inputs:
+        intervals: list of intervals with unique start (s), end (f) times and a weight (w) represented as lists.
+
+    Output:
+        Returns the total amount of possible non-overlapping intervals, the intervals themself (with start, end times and weight) 
+        and the total weight of all intervals.
+    """
+    # Convert lists to namedtuples
+    namedtuple_intervals = [Interval(*interval) for interval in intervals]
+
+    # Sort named intervals based on end times
+    sorted_intervals = sorted(namedtuple_intervals, key=lambda x: x.f)
+
+    # Initialize an array stores the max total weight for each interval
+    dp_list = [0] * len(sorted_intervals)
+    dp_list[0] = sorted_intervals[0].w
+
+    # Iterates through all intervals to find the max total weight at each position in the array
+    for i in range(1, len(sorted_intervals)):
+        current_weight = sorted_intervals[i].w
+        non_overlapping_intervals = []
+        for j in range(i):
+            if sorted_intervals[j].f <= sorted_intervals[i].s:
+                non_overlapping_intervals.append(dp_list[j])
+        #Optimal weight at each intervall: OPT(j) = max{w_j + OPT(p(j)), OPT(j-1)} with base case OPT(0) = 0
+        dp_list[i] = max(current_weight + max(non_overlapping_intervals, default=0), dp_list[i-1])
+
+    # Selects all non-overlapping intervals with highest weight
+    selected_intervals = []
+    i = len(sorted_intervals)-1
+    while i >= 0:
+        if i == 0 or dp_list[i] != dp_list[i-1]:
+            selected_intervals.append(sorted_intervals[i])
+            i = next((j for j in range(i-1, -1, -1) if sorted_intervals[j].f <= sorted_intervals[i].s), -1)
+        else:
+            i -= 1
+
+    # Reverse the list to get intervals in correct order
+    selected_intervals.reverse()
+    
+    # Returns the intervals, total weight and the maximum set of intervals based on weight that are non-overlaping
+    return len(selected_intervals), selected_intervals, dp_list[-1]
+
+# Testing the function by using random intervals
+weighted_intervals = [[0, 3, 3], [1, 4, 2], [0, 5, 4], [3, 6, 1], [4, 7, 2], [3, 9, 5], [5, 10, 2], [8, 10, 1]]
+result = weighted_interval_scheduling(weighted_intervals)
+print(result)

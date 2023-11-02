@@ -1,1 +1,0 @@
-Interval(1, 3), Interval(2, 4), Interval(1, 4)
